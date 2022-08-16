@@ -1,5 +1,8 @@
 <?php
 
+
+    session_start();
+
     require_once("../dbLog.php");
 
 
@@ -12,29 +15,94 @@
     }
 
     if (isset($_POST["connection"])) {
+
         $mail = trim($_POST["mail"]);
         $password = trim($_POST["userPassword"]);
-    }
+
+        /* verification mail */
+    
+    
+        if (empty($mail)) {
+            $errUserName = "Veuillez entrer votre adresse mail.";
+        }
+    
+        /* verification mot de passe */
+    
+        if (empty($password)) {
+            $errPassword = "Veuillez entrer votre mot de passe.";
+        }
+    
+    
+    
+        if (empty($errMail) && empty($errPassword)) {
+    
+            $sql = "SELECT user_id, user_name, user_password  FROM users WHERE user_email = ?  ";
+            
+        }
+    
 
 
-    /* verification mail */
-
-
-    if (empty($mail)) {
-        $errUserName = "Veuillez entrer votre adresse mail.";
-    }
-
-    /* verification mot de passe */
-
-    if (empty($password)) {
-        $errPassword = "Veuillez entrer votre mot de passe.";
-    }
 
 
 
-    if (empty($errMail) && empty($errPassword)) {
+
+
+
+
+
+            if($stmt = mysqli_prepare($link, $sql)){
+                // Bind variables to the prepared statement as parameters
+                mysqli_stmt_bind_param($stmt, "s", $param_username);
+                
+                // Set parameters
+                $param_username = $username;
+                
+                // Attempt to execute the prepared statement
+                if(mysqli_stmt_execute($stmt)){
+                    // Store result
+                    mysqli_stmt_store_result($stmt);
+                    
+                    // Check if username exists, if yes then verify password
+                    if(mysqli_stmt_num_rows($stmt) == 1){                    
+                        // Bind result variables
+                        mysqli_stmt_bind_result($stmt, $id, $username, $hashed_password);
+                        if(mysqli_stmt_fetch($stmt)){
+                            if(password_verify($password, $hashed_password)){
+                                // Password is correct, so start a new session
+                                session_start();
+                                
+                                // Store data in session variables
+                                $_SESSION["loggedin"] = true;
+                                $_SESSION["id"] = $id;
+                                $_SESSION["username"] = $username;                            
+                                
+                                // Redirect user to welcome page
+                                header("location: welcome.php");
+                            } else{
+                                // Password is not valid, display a generic error message
+                                $login_err = "Invalid username or password.";
+                            }
+                        }
+                    } else{
+                        // Username doesn't exist, display a generic error message
+                        $login_err = "Invalid username or password.";
+                    }
+                } else{
+                    echo "Oops! Something went wrong. Please try again later.";
+                }
+    
+                // Close statement
+                mysqli_stmt_close($stmt);
+            }
+        }
         
-    }
+        // Close connection
+        mysqli_close($link);
+    
+        
+    
+
+
 
 
 
@@ -70,6 +138,11 @@
 
 
     </form>
+
     
+
+    <p>Vous n'avez pas de compte? <a href="./inscription.php">Inscrivez vous maintenant.</a></p>
+
+
 </body>
 </html>
