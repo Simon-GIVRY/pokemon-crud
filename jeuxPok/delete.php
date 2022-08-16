@@ -13,3 +13,5 @@ if($connexion){
 
 
 ?>
+
+<a href="./read.php" title="Redirection vers la liste" >Redirection vers la liste !</a>
