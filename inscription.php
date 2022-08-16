@@ -1,13 +1,14 @@
 <?php
 
-require_once("../dbLog.php");
+    require_once("../dbLog.php");
 
 
-$username = $mail = $password = $confirmedPassword = $userPfp = "";
-$errUserName = $errPassword = $errConfirmedPassword = $errMail = $errPfp = "";
+    $username = $mail = $password = $confirmedPassword = $userPfp = "";
+    $errUserName = $errPassword = $errConfirmedPassword = $errMail = $errPfp = "";
 
+    $aa ="";
 
-if ($connexion) {
+    if ($connexion) {
 
 
     if (!empty($_POST)) {
@@ -29,7 +30,8 @@ if ($connexion) {
         /* verification username */
         if (empty($username)) {
             $errUserName = "Ce champ doit être rempli";
-        } else {
+        } 
+        else {
             if (!preg_match('/^[a-zA-Z0-9_]/', $username)) {
                 $errUserName = "Le nom d'utilisateur peut seulement contenir des lettres, des nombres et des underscores";
             }
@@ -40,9 +42,9 @@ if ($connexion) {
         if (empty($mail)) {
             $errMail = "Ce champ doit être rempli";
         } else {
-            if (!preg_match('/^[a-zA-Z0-9._]/', $mail)) {
-                /* aaa */
-            }
+            /* if (!preg_match('/^[a-zA-Z0-9._]/', $mail)) {
+                 aaa 
+            } */
             if (!filter_var($mail, FILTER_VALIDATE_EMAIL)) {
                 $errMail = "Votre adresse Email n'est pas conforme.";
             }
@@ -56,12 +58,10 @@ if ($connexion) {
             if (strlen($password) < 6) {
                 $errPassword = "Votre mot de passe doit au moins faire 6 charactère de long.";
             }
-            /* if (!preg_match('/^[a-zA-Z0-9._]/', $password)) {
-                # code...
-            } */
-            if (!preg_match('/[A-Z]/', $password) >= 1 && preg_match('/\d/', $password) >= 1 && preg_match('/[A-Z]/', $password)) {
-                echo "test condition";
+            if (!preg_match('/[A-Z]/', $password)  || !preg_match('/\d/', $password) ) {
+                $errPassword = "Votre mot de passe doit contenir au moins une majuscule et au moins un chiffre.";
             }
+            
         }
 
 
@@ -69,19 +69,32 @@ if ($connexion) {
         if (empty($confirmedPassword)) {
             $errConfirmedPassword = "Ce champ doit être rempli.";
         } else {
-            if ($password != $confirmedPaswword) {
+            if ($password != $confirmedPassword) {
                 $errConfirmedPassword = "Vos mots de passes ne correspondent pas.";
             }
         }
 
 
         /* verification pfp */
-        if (!filter_var($userPfp, FILTER_VALIDATE_EMAIL)) {
-            $errPfp = "Votre url n'est pas conforme.";
+        if (!empty($userPfp)) {
+            
+            if (!filter_var($userPfp, FILTER_VALIDATE_URL)) {
+                $errPfp = "Votre url n'est pas conforme.";
+            }
         }
-    } else {
-        $connexion->query("INSERT INTO users (user_name, user_email, user_password, user_img) VALUES ('$username', '$mail', '$password', '$userPfp')");
-    }
+
+
+        /* ENVOIE REQUETE */
+        if (empty($errUserName) && empty($errMail) && empty($errPassword) && empty($errConfirmedPassword) && empty($errPfp)) {
+            $connexion->query("INSERT INTO users (user_name, user_email, user_password, user_img) VALUES ('$username', '$mail', '$password', '$userPfp')");
+            $aa = "test réussi";
+
+            header("Location: ./inscriptionReussi.php");
+
+
+        }
+        
+    } 
 }
 
 
@@ -91,7 +104,7 @@ if ($connexion) {
 
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 
 <head>
     <meta charset="UTF-8">
@@ -102,7 +115,7 @@ if ($connexion) {
 
 <body>
 
-    <form action="" method="post">
+    <form action="./inscription.php" method="post">
 
         <label for="name">Entrez votre nom&nbsp;:</label>
         <div> <?php echo $errUserName ?> </div>
@@ -138,6 +151,10 @@ if ($connexion) {
 
         <br>
         <input type="submit" name="inscription" value="S'inscrire">
+
+
+<br>
+        <p> <?php echo $aa ?> </p>
 
     </form>
 
