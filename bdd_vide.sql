@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `pokemon_games` (
   `pkmn_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `pkmn_game_name` varchar(255) DEFAULT NULL,
   `pkmn_generation` int(11) DEFAULT NULL,
-  `pkmn_release_date` DATE DEFAULT NULL,
+  `pkmn_release_date` int(11) DEFAULT NULL,
   `pkmn_support` varchar(255) DEFAULT NULL,
   `pkmn_image` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`pkmn_id`),

@@ -7,7 +7,7 @@
     $user = "root";
     $pass = "";
     // $dbname = "projetExercice";
-    $dbname = "crud-pkmn";
+    $dbname = "projetexercice";
 
     $connexion = new PDO("mysql:host=$hote; dbname=$dbname", $user, $pass);
 ?>
