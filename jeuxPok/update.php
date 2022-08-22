@@ -5,6 +5,8 @@
     require("./conn.php");
 
     if($connexion){
+        if($_POST['generation'] > 8){
+            echo "Erreur il n'y a que 8 génération";
         if($_GET && $_GET["pkmn_id"]){
             $pkmnId = $_GET["pkmn_id"];
 
@@ -14,7 +16,8 @@
             //Permet de pouvoir afficher le resultat.
             $result = $execResult->fetchAll(PDO::FETCH_ASSOC);
         }
-
+    }
+    else{
         else{
                 $pkmnId = $_POST["pkmn_id"];
                 $newName = $_POST["titre"];
@@ -27,6 +30,7 @@
                 var_dump($execResult);
         }
     }
+}
 
 ?>
 
