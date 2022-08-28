@@ -10,7 +10,7 @@
 
     if ($connexion) {
 
-
+        $query=$connexion->prepare("INSERT INTO users (user_name, user_email, user_password, user_img) VALUES (?, ?, ?, ?)");
         /*   if (!empty($_POST)) {
             extract($_POST);
         }  */
@@ -29,15 +29,33 @@
                         $errUserName = "Ce champ doit être rempli";
                     }
 
-                    else {
-                        if (!preg_match('/^[a-zA-Z0-9_]/', $username)) {
+                    elseif (!preg_match('/^[a-zA-Z0-9_]/', $username)) {
                             $errUserName = "Le nom d'utilisateur peut seulement contenir des lettres, des nombres et des underscores";
-                        }
                     }
-        
+                    else {
+                        $query->mysqli_stmt_bind_param($query, "s", $username);
+                    }
+                    
+                    
                 }
-    
-    
+                
+                
+                if ($fields === "user_mail") {
+                    $mail = trim($values);
+                    
+                    /* verification mail */ 
+                    if (empty($mail)) {
+                        $errMail = "Ce champ doit être rempli";
+                    } 
+                    elseif (!filter_var($mail, FILTER_VALIDATE_EMAIL))  {
+                        $errMail = "Votre adresse email n'est pas conforme.";
+                        
+                    }
+                    else {
+                        $query->mysqli_stmt_bind_param($query, "s", $mail);
+                    }
+                }
+                
                 if ($fields === "user_password") {
                     
                     $password = trim($values);
@@ -63,6 +81,7 @@
                     /* Verify if there's any error so we can hash the password for the query */
                     if (empty($errPassword)) {
                         $hashedPassword=hash('sha512', htmlspecialchars($password) );
+
                     }
                 }
     
@@ -77,25 +96,16 @@
                     elseif ($password != $confirmedPassword) {
                         $errConfirmedPassword = "Vos mots de passes ne correspondent pas.";
                     }
+                    else {                   
+                        $query->mysqli_stmt_bind_param($query, 's', $hashedPassword);
+                    }
                 }
             
 
             
             
     
-                if ($fields === "user_mail") {
-                    $mail = trim($values);
-                    
-                    /* verification mail */ 
-                    if (empty($mail)) {
-                        $errMail = "Ce champ doit être rempli";
-                    } 
-                    elseif (!filter_var($mail, FILTER_VALIDATE_EMAIL))  {
-                        $errMail = "Votre adresse email n'est pas conforme.";
-                        
-                    }
-                }
-            
+                
 
             
 
@@ -110,8 +120,13 @@
                         if (!filter_var($userPfp, FILTER_VALIDATE_URL)) {
                             $errPfp = "Votre url n'est pas conforme.";
                         }
+                        else {
+                            $query->mysqli_stmt_bind_param($query, "s", $userPfp);
+                        }
                     }
+                    
                 }
+                
                 /* var_dump($username); */
                 /* var_dump($_POST); */
                 /* var_dump($fields); */
@@ -124,15 +139,22 @@
             
             /* ENVOIE REQUETE */
             if (empty($errUserName) && empty($errMail) && empty($errPassword) && empty($errConfirmedPassword) && empty($errPfp)) {
-            /*   $connexion->query("INSERT INTO users (user_name, user_email, user_password, user_img) VALUES ('$username', '$mail', '$hashedPassword', '$userPfp')"); */
-                $aa = "test réussi";
-                /* header("Location: ./inscriptionReussi.php"); */
+                $query->execute();
+                
+                header("Location: ./inscriptionReussi.php");
             }
+        
         }
 
         
         
     } 
+
+
+
+   
+
+    
 
     
     
