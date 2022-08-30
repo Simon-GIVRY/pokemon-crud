@@ -3,24 +3,24 @@
     require_once("../dbLog.php");
 
 
-   /*  $username = $mail = $password = $confirmedPassword = $userPfp = ""; */
+    $username = $mail = $password = $confirmedPassword = $userPfp = "";
     $errUserName = $errPassword = $errConfirmedPassword = $errMail = $errPfp = "";
 
-    $aa ="";  /* var test to delete */
 
     if ($connexion) {
 
-        $query=$connexion->prepare("INSERT INTO users (user_name, user_email, user_password, user_img) VALUES (?, ?, ?, ?)");
-        /*   if (!empty($_POST)) {
+          /* if (!empty($_POST)) {
             extract($_POST);
         }  */
         
         
         if (isset($_POST["inscription"])) {
-
+            
+            $stmt=$connexion->prepare("INSERT INTO users (user_name, user_email, user_password, user_img) VALUES (?, ?, ?, ?)");
+            
             foreach ($_POST as $fields => $values){
     
-                if ($fields == "user_name" ){
+                if ($fields === "user_name"){
                     
                     $username = trim($values);
         
@@ -32,9 +32,7 @@
                     elseif (!preg_match('/^[a-zA-Z0-9_]/', $username)) {
                             $errUserName = "Le nom d'utilisateur peut seulement contenir des lettres, des nombres et des underscores";
                     }
-                    else {
-                        $query->mysqli_stmt_bind_param($query, "s", $username);
-                    }
+    
                     
                     
                 }
@@ -51,9 +49,7 @@
                         $errMail = "Votre adresse email n'est pas conforme.";
                         
                     }
-                    else {
-                        $query->mysqli_stmt_bind_param($query, "s", $mail);
-                    }
+                    
                 }
                 
                 if ($fields === "user_password") {
@@ -96,19 +92,9 @@
                     elseif ($password != $confirmedPassword) {
                         $errConfirmedPassword = "Vos mots de passes ne correspondent pas.";
                     }
-                    else {                   
-                        $query->mysqli_stmt_bind_param($query, 's', $hashedPassword);
-                    }
+                    
                 }
             
-
-            
-            
-    
-                
-
-            
-
     
                 if ($fields === "user_img"){
         
@@ -120,44 +106,27 @@
                         if (!filter_var($userPfp, FILTER_VALIDATE_URL)) {
                             $errPfp = "Votre url n'est pas conforme.";
                         }
-                        else {
-                            $query->mysqli_stmt_bind_param($query, "s", $userPfp);
-                        }
+                        
                     }
                     
                 }
+
+                $stmt->bindParam( 'ssss', $username, $mail, $hashedPassword, $userPfp);
                 
-                /* var_dump($username); */
-                /* var_dump($_POST); */
-                /* var_dump($fields); */
-                /* var_dump($values); */
-                /* var_dump($username);
-                var_dump($password);
-                var_dump($mail); */
             }
             
             
-            /* ENVOIE REQUETE */
+            /* sending query */
             if (empty($errUserName) && empty($errMail) && empty($errPassword) && empty($errConfirmedPassword) && empty($errPfp)) {
-                $query->execute();
+                $stmt->execute();
                 
                 header("Location: ./inscriptionReussi.php");
             }
         
         }
-
-        
         
     } 
 
-
-
-   
-
-    
-
-    
-    
 ?>
 
 
@@ -209,8 +178,7 @@
         <input type="submit" name="inscription" value="S'inscrire">
 
 
-<br>
-        <p> <?php echo $aa ?> </p>
+
 
     </form>
 
